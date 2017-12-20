@@ -482,7 +482,9 @@ Scalar type extensions have the potential to be invalid if incorrectly defined.
 
 ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
 
-ImplementsInterfaces : Description? implements NamedType+
+ImplementsInterfaces :
+  - implements `&`? NamedType
+  - ImplementsInterfaces & NamedType
 
 FieldsDefinition : { FieldDefinition+ }
 
@@ -877,9 +879,16 @@ For example, an interface `NamedEntity` may describe a required field and types
 such as `Person` or `Business` may then implement this interface to guarantee
 this field will always exist.
 
+Types may also implement multiple interfaces. For example, `Business` implements
+both the `NamedEntity` and `ValuedEntity` interfaces in the example below.
+
 ```graphql example
 interface NamedEntity {
   name: String
+}
+
+interface ValuedEntity {
+  value: Int
 }
 
 type Person implements NamedEntity {
@@ -887,8 +896,9 @@ type Person implements NamedEntity {
   age: Int
 }
 
-type Business implements NamedEntity {
+type Business implements NamedEntity & ValuedEntity {
   name: String
+  value: Int
   employeeCount: Int
 }
 ```
@@ -1025,12 +1035,10 @@ Interface type extensions have the potential to be invalid if incorrectly define
 
 ## Unions
 
-UnionTypeDefinition : Description? union Name Directives[Const]? MemberTypesDefinition?
+UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
 
-MemberTypesDefinition : = MemberTypes
-
-MemberTypes :
-  - `|`? NamedType
+UnionMemberTypes :
+  - = `|`? NamedType
   - MemberTypes | NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL
@@ -1126,7 +1134,7 @@ Union types have the potential to be invalid if incorrectly defined.
 ### Union Extensions
 
 UnionTypeExtension :
-  - extend union Name Directives[Const]? MemberTypesDefinition
+  - extend union Name Directives[Const]? UnionMemberTypes
   - extend union Name Directives[Const]
 
 Union type extensions are used to represent a union type which has been
